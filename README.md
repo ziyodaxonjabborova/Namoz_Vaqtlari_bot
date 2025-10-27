@@ -1,5 +1,11 @@
 # Namoz_Vaqtlari_bot
-🕋 Namoz vaqtlari Telegram boti ---  O‘zbekiston viloyatlari bo‘yicha hozirgi, haftalik va oylik namoz vaqtlarini ko‘rsatadi.
+🕋 Namoz vaqtlari Telegram boti — O‘zbekiston viloyatlari bo‘yicha hozirgi, haftalik va oylik namoz vaqtlarini ko‘rsatadi.
+
+
+
+
+
+
 
 
 
