@@ -14,6 +14,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 API so'rovlari:
 
 Bugungi namoz vaqtlarini olish uchun: https://islomapi.uz/api/present/day?region=Toshkent
