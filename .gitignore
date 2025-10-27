@@ -1,0 +1,52 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment folders
+venv/
+env/
+.venv/
+
+# Environment files
+.env
+
+# VSCode settings
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Aiogram logs or temp files
+*.log
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Jupyter notebook checkpoints (agar ishlatsang)
+.ipynb_checkpoints/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pyre/
+
+# Local IDE settings
+.idea/
