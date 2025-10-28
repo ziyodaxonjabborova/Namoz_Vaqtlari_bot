@@ -1,10 +1,10 @@
 from aiogram import Router,F
 from aiogram.filters import Command,CommandStart
-from aiogram.types import Message,ReplyKeyboardRemove,CallbackQuery
+from aiogram.types import Message,ReplyKeyboardRemove,CallbackQuery,InlineKeyboardMarkup,InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
 import requests
 
-from datetime import date
+from datetime import date,datetime
 
 from buttons import DATE_BUTTON,REGIONS_BUTTON
 from states import Data
@@ -37,11 +37,38 @@ async def get_date(message:Message,state:FSMContext):
 
 
 @router.callback_query(F.data.startswith("region"))
+
 async def get_region(call: CallbackQuery, state: FSMContext):
     region = call.data.split("_")[-1]
     data = await state.get_data()
     selected_date = data.get("date") 
     
+    # buttons for Months
+    MONTH_BUTTON=InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Yanvar",callback_data=f"month_{region}_1"),
+             InlineKeyboardButton(text="Fevral",callback_data=f"month_{region}_2"),
+             InlineKeyboardButton(text="Mart",callback_data=f"month_{region}_3"),
+             ],
+
+            [InlineKeyboardButton(text="Aprel",callback_data=f"month_{region}_4"),
+             InlineKeyboardButton(text="May",callback_data=f"month_{region}_5"),
+             InlineKeyboardButton(text="Iyun",callback_data=f"month_{region}_6"),
+             ],
+
+            [InlineKeyboardButton(text="Iyul",callback_data=f"month_{region}_7"),
+             InlineKeyboardButton(text="Avgust",callback_data=f"month_{region}_8"),
+             InlineKeyboardButton(text="Sentyabr",callback_data=f"month_{region}_9"),
+             ],
+
+            [InlineKeyboardButton(text="Oktyabr",callback_data=f"month_{region}_10"),
+             InlineKeyboardButton(text="Noyabr",callback_data=f"month_{region}_11"),
+             InlineKeyboardButton(text="Dekabr",callback_data=f"month_{region}_12"),
+             ],
+
+        ]
+    )
+
     if selected_date=="Day":
         url = f"https://islomapi.uz/api/present/day?region={region}"
         response = requests.get(url).json()
@@ -67,14 +94,14 @@ async def get_region(call: CallbackQuery, state: FSMContext):
         url = f"https://islomapi.uz/api/present/week?region={region}"
         response = requests.get(url).json()
 
-        # Agar ma'lumot topilmasa
+       
         if not response or not isinstance(response, list):
             await call.message.answer("❌ Ma'lumot topilmadi.")
             return
 
         text = f"🕌 *{region}* — *Haftalik namoz vaqtlari*\n\n"
 
-        # API haftalik natijani list shaklida qaytaradi
+        
         for day_info in response:
             weekday = day_info.get("weekday")
             date_ = day_info.get("date")
@@ -92,7 +119,40 @@ async def get_region(call: CallbackQuery, state: FSMContext):
 
         await call.message.answer(text, parse_mode="Markdown")
         
+    else:
+        await call.message.answer("📅 Quyidagi ro‘yxatdan o‘zingizga kerakli *oyni* tanlang 👇",
+                                  parse_mode="Markdown",reply_markup=MONTH_BUTTON)
+        await state.set_state(Data.month)
+        
     
+@router.callback_query(F.data.startswith("month"))
+
+async def get_month(call: CallbackQuery,state:FSMContext):
+    month=int(call.data.split("_")[-1])
+    region=call.data.split("_")[-2]
     
+    data = requests.get(f"https://islomapi.uz/api/monthly?region={region}&month={month}").json()
     
 
+    text = f"🕌 *{region}* — *{month}*-oy uchun namoz vaqtlari:\n\n"
+
+    for day in data:
+        iso_date = day["date"]
+        vaqtlar = day["times"]
+
+    
+        sana_obj = datetime.fromisoformat(iso_date.replace("Z", ""))
+        sana = sana_obj.strftime("%d-%B-%Y, %A")
+
+
+        text += (
+            f"📅 *{sana}*\n"
+            f"🌅 Bomdod: `{vaqtlar['tong_saharlik']}`\n"
+            f"🌞 Quyosh: `{vaqtlar['quyosh']}`\n"
+            f"☀️ Peshin: `{vaqtlar['peshin']}`\n"
+            f"🌤 Asr: `{vaqtlar['asr']}`\n"
+            f"🌇 Shom: `{vaqtlar['shom_iftor']}`\n"
+            f"🌙 Xufton: `{vaqtlar['hufton']}`\n\n"
+        )
+
+    await call.message.answer(text, parse_mode="Markdown")
